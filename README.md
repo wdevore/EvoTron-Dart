@@ -16,6 +16,7 @@ Also, make a new launch.json entry
     "cwd": "/media/iposthuman/Extreme SSD/Development/Dart/EvoTron-Dart/",
     "program": "basic_shell/bin/main.dart",
     "request": "launch",
-    "type": "dart"
+    "type": "dart",
+    "args": ["standard.json"]
 }
 ```

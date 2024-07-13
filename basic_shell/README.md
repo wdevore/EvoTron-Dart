@@ -8,10 +8,14 @@ Add entry to *launch.json* as:
             "cwd": "/media/iposthuman/Extreme SSD/Development/Dart/EvoTron-Dart/",
             "program": "basic_shell/bin/main.dart",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "args": ["standard.json"]
         },
 ```
 
+# Tasks
+- Add configuration cmd line parm to select different configurations.
+- Add check for RAM disk mount (current set at 4Gig)
 
 # Sim Isolate send to main
 The simulation isolate writes data to an image. This images can be *sent* to the main isolate. However, it is better that main reads a file instead.

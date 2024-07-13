@@ -1,15 +1,19 @@
 import 'dart:ffi';
+import 'dart:io';
 import 'package:basic_shell/gui/raster_buffer.dart';
 import 'package:basic_shell/gui/window.dart';
 import 'package:ffi/ffi.dart';
 import 'package:sdl2/sdl2.dart';
 
 // The gui shows two types of information:
-// 1) Spike communication,
+// 1) Spike propagation via images,
 // 2) Network topology
 //
 // It does this via a Scenegraph.
 // SDL2 is used for rendering.
+StringBuffer keyBuffer = StringBuffer();
+bool keyBuffReady = false;
+String keyCode = '';
 
 // This filter is needed because calling sdlDelay locks the thread
 // while delaying which prevents any input polling. This causes
@@ -20,13 +24,34 @@ int myEventFilter(Pointer<Uint8> running, Pointer<SdlEvent> event) {
       running.value = 0;
       break;
     case SDL_KEYDOWN:
-      var keys = sdlGetKeyboardState(nullptr);
+      int scanCode = event.key.keysym[0].scancode;
+      int sym = event.key.keysym[0].sym;
+      // print(scanCode);
+      // print(event.key.keysym[0].mod);
+      // var keys = sdlGetKeyboardState(nullptr);
+
       // aka backtick '`' key
-      if (keys[SDL_SCANCODE_GRAVE] != 0) {
+      if (scanCode == SDL_SCANCODE_GRAVE) {
         running.value = 0;
-      } else if (keys[SDL_SCANCODE_0] != 0) {
-      } else if (keys[SDL_SCANCODE_LEFT] != 0) {
-      } else if (keys[SDL_SCANCODE_RIGHT] != 0) {}
+        break;
+      }
+
+      if (scanCode == SDL_SCANCODE_RETURN) {
+        stdout.write('\r');
+        keyBuffReady = true;
+        break;
+      }
+
+      if (scanCode >= SDL_SCANCODE_A && scanCode <= SDL_SCANCODE_0) {
+        keyCode = String.fromCharCode(sym);
+        keyBuffer.write(keyCode);
+        stdout.write(keyCode);
+
+        break;
+      }
+
+    // if (keys[SDL_SCANCODE_GRAVE] != 0) {
+    //   running.value = 0;
 
     default:
       break;
@@ -110,7 +135,9 @@ class Gui {
     _rb.clear(_window.renderer!);
   }
 
-  void render() {}
+  void preRender() {}
+
+  void postRender() {}
 
   void post() {
     _rb.end();

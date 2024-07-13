@@ -1,0 +1,15 @@
+{
+    "ImageOutputPath": "/media/RAMDisk",
+    "Duration": 12345,
+    "SourceImageInput": "...",
+    "NeuronDefaults": {
+        "Neurons": [
+            {
+                "n0": "y"
+            },
+            {
+                "n1": "y"
+            }
+        ]
+    }
+}
