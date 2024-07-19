@@ -1,7 +1,6 @@
 import 'dart:ffi';
 import 'dart:io' as io;
 import 'dart:math';
-import 'package:evo_tron1/gui/colors.dart';
 import 'package:path/path.dart' as p;
 import 'package:sdl2/sdl2.dart';
 

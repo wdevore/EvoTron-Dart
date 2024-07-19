@@ -1,48 +1,25 @@
 // Collects static text textures
 import 'dart:ffi';
-import 'dart:math';
 
 import 'package:evo_tron1/gui/colors.dart';
 import 'package:sdl2/sdl2.dart';
 
 import 'raster/ttf_font.dart';
-
-class Text {
-  final Pointer<SdlTexture> texture;
-  double textWidth = 0;
-  double textHeight = 0;
-  double left = 0;
-  double top = 0;
-  late Rectangle<double> posTextRect;
-  late String text;
-
-  Text(this.texture);
-
-  factory Text.nil() => Text(nullptr);
-
-  bool get isNil => texture == nullptr;
-
-  void draw(Pointer<SdlRenderer> renderer) {
-    renderer.copy(texture, dstrect: posTextRect);
-  }
-
-  void destroy() {
-    texture.destroy();
-  }
-}
+import 'text.dart';
 
 class TextAtlas {
+  static int pointSize = 15;
+
   late TTFont ttf;
-  late Pointer<SdlRenderer> renderer;
 
   List<Text> texts = [];
 
   int initialize(Pointer<SdlRenderer> renderer) {
-    this.renderer = renderer;
     ttf = TTFont(renderer);
     ttf.initialize();
 
-    int fontStatus = ttf.load('evo_tron1/assets/', 'neuropol x rg.ttf', 10);
+    int fontStatus =
+        ttf.load('evo_tron1/assets/', 'neuropol x rg.ttf', pointSize);
     if (fontStatus < 0) {
       return fontStatus;
     }
@@ -72,6 +49,35 @@ class TextAtlas {
       (text) => text.text == txt,
       orElse: () => Text.nil(),
     );
+  }
+
+  void setPosition(String text, double left, double top) {
+    Text t = findText(text);
+    if (!t.isNil) {
+      setPositionByText(t, left, top);
+    }
+  }
+
+  void setPositionByText(Text text, double left, double top) {
+    text.left = left;
+    text.top = top;
+  }
+
+  void drawInt(
+    int value,
+    double left,
+    double top,
+    double charWidth,
+    Pointer<SdlRenderer> renderer,
+  ) {
+    String sv = '$value';
+    List<String> ls = sv.split('');
+    for (var char in ls) {
+      Text txt = findText(char);
+      txt.setPosition(left, top);
+      left += charWidth;
+      txt.draw(renderer);
+    }
   }
 
   void destroy() {

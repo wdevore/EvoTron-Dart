@@ -3,6 +3,8 @@ import 'dart:math';
 
 import 'package:ffi/ffi.dart';
 import 'package:sdl2/sdl2.dart';
+
+import 'colors.dart';
 // import 'package:soft_renderer/palette/colors.dart';
 
 class Window {
@@ -13,7 +15,7 @@ class Window {
   final int height;
   final int scale;
 
-  // int clearColor = Colors().black;
+  List<int> clearColor = Colors().blackC;
 
   Window(this.width, this.height, this.scale) {
     window = calloc<Pointer<SdlWindow>>() as Pointer<SdlWindow>;
@@ -68,6 +70,14 @@ class Window {
   void update() {}
 
   void clear() {
+    sdlSetRenderDrawColor(
+      renderer,
+      clearColor[0],
+      clearColor[1],
+      clearColor[2],
+      clearColor[3],
+    );
+
     renderer.clear();
   }
 

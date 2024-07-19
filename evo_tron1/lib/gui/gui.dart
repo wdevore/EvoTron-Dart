@@ -1,10 +1,11 @@
 import 'dart:ffi';
 import 'dart:io';
-import 'package:evo_tron1/fonts/raster/ttf_font.dart';
 import 'package:evo_tron1/fonts/text_atlas.dart';
 import 'package:evo_tron1/gui/window.dart';
 import 'package:ffi/ffi.dart';
 import 'package:sdl2/sdl2.dart';
+
+import '../fonts/text.dart';
 
 // The gui shows two types of information:
 // 1) Spike propagation via images,
@@ -67,6 +68,8 @@ class Gui {
   static const scale = 1;
   static const fPS = 60;
   static const frameTargetTime = 1000 ~/ fPS;
+  int timeToWait = 0;
+  int frameTime = 0;
 
   late Window _window;
 
@@ -100,19 +103,13 @@ class Gui {
       return tatStatus;
     }
     textAtlas.addText('Hello World', 100, 100);
-    textAtlas.addText('FPS:', 200, 200);
-    // ttf = TTFont(_window.renderer);
-    // ttf.initialize(winWidth, winHeight);
+    textAtlas.addText('FPS:', 5, winHeight - 25);
 
-    // int fontStatus = ttf.load('evo_tron1/assets/', 'neuropol x rg.ttf', 10);
-    // if (fontStatus < 0) {
-    //   return fontStatus;
-    // }
-
-    // int ttfStatus = ttf.setText("Hello World");
-    // if (ttfStatus < 0) {
-    //   return ttfStatus;
-    // }
+    double xOff = 0;
+    for (var i = 0; i < 10; i++) {
+      textAtlas.addText(String.fromCharCode(0x30 + i), xOff, 0);
+      // xOff += 20.0;
+    }
 
     _running = calloc<Uint8>();
     _running.value = 1;
@@ -144,6 +141,8 @@ class Gui {
   }
 
   void preRender() {
+    _window.clear();
+
     Text txt = textAtlas.findText('Hello World');
     if (!txt.isNil) {
       txt.draw(_window.renderer);
@@ -152,6 +151,7 @@ class Gui {
     if (!txt.isNil) {
       txt.draw(_window.renderer);
     }
+    textAtlas.drawInt(frameTime, 60, winHeight - 25, 15, _window.renderer);
   }
 
   void postRender() {
@@ -173,7 +173,8 @@ class Gui {
   // Using this method REQUIRES the usage of a event filter.
   int adjustFPS(int previousFrameTime, Pointer<SdlEvent> event) {
     // Wait some time until we reach the target frame time in milliseconds
-    int timeToWait = frameTargetTime - (sdlGetTicks() - previousFrameTime);
+    timeToWait = frameTargetTime - (sdlGetTicks() - previousFrameTime);
+    frameTime = timeToWait != 0 ? 1000 ~/ timeToWait : 0;
 
     // Only delay execution if we are running too fast
     if (timeToWait > 0 && timeToWait <= frameTargetTime) {
