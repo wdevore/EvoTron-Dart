@@ -109,8 +109,7 @@ void monitorPort(Stream<dynamic> stream) {
       io.stdout.write('\r\n');
       switch (message[0]) {
         case 'Info':
-          print('### ${message[0]}');
-          print('### ${message[1]}');
+          print('I: ${message[1]}');
           io.stdout.write('>');
           break;
         case 'Exited':

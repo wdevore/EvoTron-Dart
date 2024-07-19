@@ -1,8 +1,7 @@
 import 'dart:ffi';
 import 'dart:io';
 import 'package:evo_tron1/fonts/raster/ttf_font.dart';
-import 'package:evo_tron1/gui/colors.dart';
-import 'package:evo_tron1/gui/raster_buffer.dart';
+import 'package:evo_tron1/fonts/text_atlas.dart';
 import 'package:evo_tron1/gui/window.dart';
 import 'package:ffi/ffi.dart';
 import 'package:sdl2/sdl2.dart';
@@ -70,7 +69,6 @@ class Gui {
   static const frameTargetTime = 1000 ~/ fPS;
 
   late Window _window;
-  late RasterBuffer _rb;
 
   late Pointer<Uint8> _running;
   late Pointer<SdlEvent> _event;
@@ -82,7 +80,8 @@ class Gui {
   // camera.moveUp(3.0, deltaTime);
   double _deltaTime = 0;
 
-  late TTFont ttf;
+  // late TTFont ttf;
+  late TextAtlas textAtlas;
 
   /// Make sure to call shutdown(...) if status < 0
   int initialize() {
@@ -93,29 +92,27 @@ class Gui {
       return status;
     }
 
-    status = _window.create('Software renderer');
+    status = _window.create('Evo Tron 1');
 
-    ttf = TTFont();
-    ttf.initialize(winWidth, winHeight);
-
-    int fontStatus = ttf.load('evo_tron1/assets/', 'neuropol x rg.ttf', 40);
-    if (fontStatus < 0) {
-      return fontStatus;
+    textAtlas = TextAtlas();
+    int tatStatus = textAtlas.initialize(_window.renderer);
+    if (tatStatus < 0) {
+      return tatStatus;
     }
+    textAtlas.addText('Hello World', 100, 100);
+    textAtlas.addText('FPS:', 200, 200);
+    // ttf = TTFont(_window.renderer);
+    // ttf.initialize(winWidth, winHeight);
 
-    int ttfStatus = ttf.setText("Hello World", _window.renderer!);
-    if (ttfStatus < 0) {
-      return ttfStatus;
-    }
+    // int fontStatus = ttf.load('evo_tron1/assets/', 'neuropol x rg.ttf', 10);
+    // if (fontStatus < 0) {
+    //   return fontStatus;
+    // }
 
-    _rb = RasterBuffer();
-
-    status = _rb.create(_window.renderer!, winWidth, winHeight);
-    if (status == -1) {
-      print('Unable to create texture: ${sdlGetError()}');
-      return -4;
-    }
-    // _rb.setText("Hello World");
+    // int ttfStatus = ttf.setText("Hello World");
+    // if (ttfStatus < 0) {
+    //   return ttfStatus;
+    // }
 
     _running = calloc<Uint8>();
     _running.value = 1;
@@ -144,36 +141,33 @@ class Gui {
     // -------------------------------
     // We must poll so that the filter works correctly
     sdlPollEvent(_event);
-
-    // -------------------------------
-    // Update: Draw to custom texture buffer
-    // -------------------------------
-    _rb.begin();
-
-    _rb.clear(_window.renderer!);
   }
 
   void preRender() {
-    _rb.pixelColor = Colors.black128;
-    _rb.drawGrid();
-    _rb.pixelColor = Colors.orange;
-    _rb.drawDDALine(0, 0, 200, 200);
+    Text txt = textAtlas.findText('Hello World');
+    if (!txt.isNil) {
+      txt.draw(_window.renderer);
+    }
+    txt = textAtlas.findText('FPS:');
+    if (!txt.isNil) {
+      txt.draw(_window.renderer);
+    }
   }
 
   void postRender() {
-    ttf.setPosition(100, 100);
-    ttf.draw(_window.renderer!, 0xff, 0xff, 0xff);
-    // _window.copyTexture(ttf.textTexture);
-    _window.renderer!.present();
+    drawLine(100, 100, 200, 200);
   }
 
   void post() {
-    _rb.end();
-
     // -------------------------------
     // Render: Display buffer
     // -------------------------------
-    _window.update(_rb.texture);
+    _window.present();
+  }
+
+  void drawLine(int x1, int y1, int x2, int y2) {
+    sdlSetRenderDrawColor(_window.renderer, 255, 128, 0, 255);
+    sdlRenderDrawLine(_window.renderer, x1, y1, x2, y2);
   }
 
   // Using this method REQUIRES the usage of a event filter.
@@ -195,7 +189,7 @@ class Gui {
     _running.callocFree();
     _event.callocFree();
 
-    _rb.destroy();
+    textAtlas.destroy();
 
     _window.destroy();
 

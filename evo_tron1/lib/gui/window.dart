@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'dart:math';
 
 import 'package:ffi/ffi.dart';
 import 'package:sdl2/sdl2.dart';
@@ -6,7 +7,7 @@ import 'package:sdl2/sdl2.dart';
 
 class Window {
   Pointer<SdlWindow> window = nullptr;
-  Pointer<SdlRenderer>? renderer = nullptr;
+  Pointer<SdlRenderer> renderer = nullptr;
 
   final int width;
   final int height;
@@ -43,35 +44,35 @@ class Window {
 
     renderer = window.createRenderer(
         -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    // renderer = window.createRenderer(-1, SDL_RENDERER_SOFTWARE);
 
     if (renderer == nullptr) {
       print("Unable to create renderer: ${sdlGetError()}");
       return -3;
     }
 
-    renderer?.setLogicalSize(width, height);
+    renderer.setLogicalSize(width, height);
 
     return 0;
   }
 
-  void copyTexture(Pointer<SdlTexture>? texture) {
-    renderer!.copy(texture!);
+  void copyTexture(Pointer<SdlTexture>? texture,
+      {Rectangle<double>? srcrect, Rectangle<double>? dstrect}) {
+    renderer.copy(texture!, srcrect: srcrect, dstrect: dstrect);
   }
 
-  void update(Pointer<SdlTexture>? texture) {
-    copyTexture(texture);
-    renderer!.present();
+  void present() {
+    renderer.present();
   }
+
+  void update() {}
 
   void clear() {
-    renderer?.clear();
-    // List<int> c = Colors().redC;
-    // renderer?.setDrawColor(c[0], c[1], c[2], c[3]);
-    // renderer?.fillRect(clearRect);
+    renderer.clear();
   }
 
   void destroy() {
-    renderer?.destroy();
+    renderer.destroy();
     window.destroy();
   }
 }

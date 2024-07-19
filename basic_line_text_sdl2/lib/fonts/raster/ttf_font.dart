@@ -11,8 +11,13 @@ class TTFont {
   Pointer<TtfFont> font = nullptr;
   late Rectangle<double> posTextRect;
   late Rectangle<double> squareRect;
+
   late Pointer<SdlSurface> textSurface;
+  double textWidth = 0;
+  double textHeight = 0;
+
   late Pointer<SdlTexture> textTexture;
+
   int screenWidth = 0;
   int screenHeight = 0;
 
@@ -60,6 +65,9 @@ class TTFont {
       return -3;
     }
 
+    textWidth = textSurface.ref.w.toDouble();
+    textHeight = textSurface.ref.h.toDouble();
+
     // Now that the surface has been transferred to a texture we can dispose
     // of the surface.
     textSurface.free();
@@ -82,8 +90,8 @@ class TTFont {
     posTextRect = Rectangle<double>(
         left,
         top,
-        textSurface.ref.w.toDouble(), //            Area X
-        textSurface.ref.h.toDouble()); //           Area Y
+        textWidth, //            Area X
+        textHeight); //           Area Y
   }
 
   void draw(Pointer<SdlRenderer> renderer, int r, int g, int b,

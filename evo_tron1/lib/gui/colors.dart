@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 class Colors {
   final List<int> whiteC = [255, 255, 255, 255];
+  final List<int> blackC = [0, 0, 0, 0];
 
   final List<int> darkCBlack32 = [32, 32, 32, 255];
   final List<int> darkCBlack64 = [64, 64, 64, 255];
